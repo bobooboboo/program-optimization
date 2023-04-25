@@ -20,21 +20,46 @@ public class AsyncDemo {
 
     public static final List<String> PLATFORM = Arrays.asList("淘宝", "抖音", "京东", "拼多多");
 
+    public static void main(String[] args) {
+        long startTime = System.currentTimeMillis();
+        withoutResultTest();
+//        withResultTest();
+        long endTime = System.currentTimeMillis();
+        System.out.println("本次总耗时:" + (endTime - startTime) + "ms");
+    }
+
     /**
-     * 发送通知
-     *
-     * @param to      接收人
-     * @param content 内容
+     * 主线程不关心结果
      */
-    public static void sendMessage(String to, String content) {
+    public static void withoutResultTest() {
+        System.out.println("开始点菜!");
         try {
-            System.out.println("向" + to + "发送消息:" + content);
+            // 模拟点菜操作耗时
+            TimeUnit.SECONDS.sleep(2);
+        } catch (Exception ignored) {
+
+        }
+        System.out.println("结束点菜!");
+        order("老王", "鱼香肉丝,红烧茄子,西湖醋鱼");
+        System.out.println("已经通知后厨");
+    }
+
+    /**
+     * 点餐
+     *
+     * @param to      后厨人员
+     * @param content 菜品内容
+     */
+    public static void order(String to, String content) {
+        try {
+            System.out.println("向" + to + "发送菜品内容:" + content);
             new Thread(() ->
             {
                 try {
-                    // 模拟耗时
-                    TimeUnit.SECONDS.sleep(2);
-                    System.out.println(to + "收到消息！over");
+                    System.out.println(to + "收到菜品内容！");
+                    // 模拟炒菜耗时
+                    TimeUnit.SECONDS.sleep(5);
+                    System.out.println("菜品:" + content + " 烹饪完成");
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -42,22 +67,6 @@ public class AsyncDemo {
         } catch (Exception ignored) {
 
         }
-    }
-
-    /**
-     * 主线程不关心结果
-     */
-    public static void withoutResultTest() {
-        System.out.println("开始业务操作!");
-        try {
-            // 模拟业务操作
-            TimeUnit.SECONDS.sleep(1);
-        } catch (Exception ignored) {
-
-        }
-        System.out.println("结束业务操作!");
-        sendMessage("老王", "一切就绪，按计划行事");
-        System.out.println("已经通知老王了，我们先行动");
     }
 
     /**
@@ -76,6 +85,7 @@ public class AsyncDemo {
                     }).min().getAsInt();
                     System.out.println("最低价格是:" + price);
                 });
+        // 等待所有任务完成
         allOf.join();
     }
 
@@ -98,11 +108,4 @@ public class AsyncDemo {
         return price;
     }
 
-    public static void main(String[] args) {
-        long startTime = System.currentTimeMillis();
-//        withoutResultTest();
-        withResultTest();
-        long endTime = System.currentTimeMillis();
-        System.out.println("本次总耗时:" + (endTime - startTime) + "ms");
-    }
 }
